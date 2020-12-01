@@ -1,5 +1,5 @@
 from accident_classification_model.accident_classification_data import x_data
-from anomally_detection_model.AnoGAN_funcition import *
+from anomally_detection_model.DBN_GAN_anomaly_detection_function import *
 import os
 import timeit
 
@@ -15,7 +15,7 @@ display_step = 1
 start_time = timeit.default_timer()
 
 n_visible = 27
-n_hidden = 512
+n_hidden = 27
 rbm = RBM(x_train, n_visible, n_hidden)
 
 for epoch in range(training_epochs):

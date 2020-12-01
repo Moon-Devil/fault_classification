@@ -123,3 +123,6 @@ class RBM(object):
     def reconstruct(self, v):
         h = self.visible_to_hidden(v)
         return self.hidden_to_visible(h)
+
+
+class
