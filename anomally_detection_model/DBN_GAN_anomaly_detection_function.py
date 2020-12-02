@@ -1,8 +1,15 @@
 import tensorflow as tf
 import numpy as np
+from sklearn.model_selection import train_test_split
 
 
-class RBM(object):
+learning_rate = 0.001
+batch_size = 5000
+training_epochs = 20
+display_step = 1
+
+
+class RBM_model(object):
     def __init__(self, input_value=None, n_visible=500, n_hidden=4, w=None, h_bias=None, v_bias=None):
         self.n_visible = tf.constant(n_visible)
         self.n_hidden = tf.constant(n_hidden)
@@ -68,7 +75,7 @@ class RBM(object):
         nv_mean, nv_sample, nh_mean, nh_sample = self.gibbs_hvh(nh_sample)
         return i_value, k, nv_mean, nv_sample, nh_mean, nh_sample
 
-    def get_train_ops(self, learning_rate=0.1, k=1, persistent=None) -> object:
+    def get_train_ops(self, lr=0.01, k=1, persistent=None) -> object:
         ph_mean, ph_sample = self.sample_v_given_h(self.input_value)
         if persistent is None:
             chain_start = ph_sample
@@ -81,12 +88,12 @@ class RBM(object):
                                      tf.zeros(tf.shape(self.input_value)), tf.zeros(tf.shape(chain_start)),
                                      chain_start])
 
-        update_w = self.w + learning_rate * (tf.matmul(tf.transpose(self.input_value), ph_mean) -
-                                             tf.matmul(tf.transpose(nv_sample), nh_mean)) / tf.to_float(
+        update_w = self.w + lr * (tf.matmul(tf.transpose(self.input_value), ph_mean) -
+                                            tf.matmul(tf.transpose(nv_sample), nh_mean)) / tf.to_float(
             tf.shape(self.input_value)[0])
 
-        update_v_bias = self.v_bias + learning_rate * (tf.reduce_mean(self.input_value - nv_sample, axis=0))
-        update_h_bias = self.h_bias + learning_rate * (tf.reduce_mean(ph_mean - nh_mean, axis=0))
+        update_v_bias = self.v_bias + lr * (tf.reduce_mean(self.input_value - nv_sample, axis=0))
+        update_h_bias = self.h_bias + lr * (tf.reduce_mean(ph_mean - nh_mean, axis=0))
 
         self.w = update_w
         self.v_bias = update_v_bias
@@ -125,4 +132,71 @@ class RBM(object):
         return self.hidden_to_visible(h)
 
 
-class
+class Neural_network_model(object):
+    def __init__(self, input_value):
+        super(Neural_network_model, self).__init__()
+        self.input = input_value
+        self.trains, self.validations = train_test_split(self.input, test_size=0.2)
+        self.trains = tf.cast(tf.convert_to_tensor(self.trains), dtype=tf.float32)
+        self.validations = tf.cast(tf.convert_to_tensor(self.validations), dtype=tf.float32)
+        self.input = tf.cast(tf.convert_to_tensor(self.input), dtype=tf.float32)
+        self.model = None
+        self.optimizer = tf.train.GradientDescentOptimizer(learning_rate)
+        self.loss_func = tf.keras.losses.mean_squared_error
+        self.train_metric_func = tf.keras.metrics.mean_squared_error
+        self.valid_metric_func = tf.keras.metrics.mean_squared_error
+
+    def create(self):
+        model = tf.keras.models.Sequential()
+        model.add(tf.keras.layers.Dense(self.input.shape[1], activation=tf.keras.activations.relu,
+                                        input_shape=self.input.shape))
+        model.add(tf.keras.layers.Dense(64, activation=tf.keras.activations.relu))
+        model.add(tf.keras.layers.Dense(128, activation=tf.keras.activations.relu))
+        model.add(tf.keras.layers.Dense(64, activation=tf.keras.activations.relu))
+        model.add(tf.keras.layers.Dense(self.input.shape[1], activation=tf.keras.activations.relu))
+        self.model = model
+        model.summary()
+
+    def train_step(self):
+        with tf.GradientTape() as tape:
+            predictions = self.model(self.trains)
+            train_loss = self.loss_func(predictions, self.trains)
+        gradients = tape.gradient(train_loss, self.model.trainable_variables)
+        self.optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
+        train_loss_mean = tf.reduce_mean(train_loss)
+        train_metric_mean = tf.reduce_mean(self.train_metric_func(self.trains, predictions))
+        return train_loss_mean, train_metric_mean
+
+    def valid_step(self):
+        prediction = self.model(self.validations)
+        valid_loss_mean = tf.reduce_mean(self.loss_func(self.validations, prediction))
+        valid_metric_mean = tf.reduce_mean(self.valid_metric_func(self.validations, prediction))
+        return valid_loss_mean, valid_metric_mean
+
+    def train(self, epochs):
+        train_loss = []
+        train_metric = []
+        valid_loss = []
+        valid_metric = []
+
+        for epoch in np.arange(epochs):
+            train_loss_tensor, train_metric_tensor = self.train_step()
+            valid_loss_tensor, valid_metric_tensor = self.valid_step()
+
+            init = tf.initialize_all_variables()
+            with tf.Session() as sess:
+                sess.run(init)
+                train_loss_temp = sess.run(train_loss_tensor)
+                train_metric_temp = sess.run(train_metric_tensor)
+                valid_loss_temp = sess.run(valid_loss_tensor)
+                valid_metric_temp = sess.run(valid_metric_tensor)
+
+            train_loss.append(train_loss_temp)
+            train_metric.append(train_metric_temp)
+            valid_loss.append(valid_loss_temp)
+            valid_metric.append(valid_metric_temp)
+
+            log = "epoch:{0}  train_loss:{1}  train_metric:{2}  valid_loss:{3}  valid_metric:{4}"
+            print(log.format(epoch, train_loss_temp,  train_metric_temp, valid_loss_temp, valid_metric_temp))
+
+
