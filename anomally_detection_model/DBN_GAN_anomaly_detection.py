@@ -1,39 +1,17 @@
 from accident_classification_model.accident_classification_data import x_data
-from anomally_detection_model.DBN_GAN_anomaly_detection_function_1 import *
-import os
-import time
-
-x_data = x_data[0][:5000, ]
-start_time = time.time()
-
-nn_model = Neural_network_model(x_data)
-nn_model.create()
-nn_model.train(5000)
+from anomally_detection_model.DBN_GAN_anomaly_detection_function import *
 
 
+node_visible = 27
+node_hidden = 500
+learning_rate = 0.01
+training_epochs = 20
+inner_epochs = 10
 
+mse0 = DBN(x_data[0], x_data[3], node_visible, node_hidden, learning_rate, training_epochs, inner_epochs, 'w+')
+mse1 = DBN(x_data[1], x_data[3], node_visible, node_hidden, learning_rate, training_epochs, inner_epochs, 'a')
+mse2 = DBN(x_data[2], x_data[3], node_visible, node_hidden, learning_rate, training_epochs, inner_epochs, 'a')
+mse4 = DBN(x_data[4], x_data[3], node_visible, node_hidden, learning_rate, training_epochs, inner_epochs, 'a')
 
-
-
-# n_visible = 27
-# n_hidden = 27
-# rbm = RBM_model(x_train, n_visible, n_hidden)
-#
-for epoch in range(training_epochs):
-    avg_cost = 0
-    cost, output = rbm.get_reconstruction_cost()
-    with tf.Session() as sess:
-        cost = sess.run(cost)
-        avg_cost = np.mean(cost)
-    persistent_chain = tf.cast(tf.zeros([batch_size, n_hidden]), dtype=tf.float32)
-    train_ops = rbm.get_train_ops(learning_rate=learning_rate, k=20, persistent=persistent_chain)
-
-    if epoch % display_step == 0:
-        print("Epoch {0} cost: {1}".format(epoch, avg_cost))
-
-end_time = time.time()
-training_time = end_time - start_time
-print("Finished!")
-print("The training ran for {0} minutes.".format(training_time/60,))
-
+print(str(mse0) + '\t' + str(mse1) + '\t' + str(mse2) + '\t' + str(mse4))
 print('done...')
