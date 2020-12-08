@@ -266,6 +266,10 @@ def DBN_train(x_train):
     FP = 0
     FN = 0
     length = len(classification)
+    label_positive = np.full(len(mse_0), 1)
+    label_negative = np.zeros(len(mse_0) * 4)
+    label = np.hstack((label_positive, label_negative))
+
     for i_value in np.arange(length):
         if label[i_value] == 1 and classification[i_value] == 1:
             TP = TP + 1
@@ -323,5 +327,3 @@ def DBN_train(x_train):
                 f.write(str(mse_0[i_value]) + ',')
             else:
                 f.write(str(mse_0[i_value]) + '\n')
-
-    print('done...')
