@@ -1,4 +1,4 @@
-from anomally_detection_model.anomaly_detection_data import x_data
+from anomally_detection_model.anomaly_detection_data_1000 import x_data
 import tensorflow as tf
 import numpy as np
 import time
