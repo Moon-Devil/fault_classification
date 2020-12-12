@@ -161,7 +161,7 @@ class RBM(object):
                 log = "epoch={0}, loss={1}, time={2}"
                 print(log.format(epoch, epoch_loss, epoch_cost_time))
 
-        result_document = result_directory + 'train_epoch_loss.txt'
+        result_document = result_directory + 'DBN_train_epoch_loss.txt'
         if os.path.exists(result_document):
             os.remove(result_document)
 
@@ -169,6 +169,37 @@ class RBM(object):
             f.write('epoch\t' + 'loss\t' + 'time\n')
             for i_value in np.arange(t_epochs):
                 f.write(str(i_value) + '\t' + str(loss[i_value]) + '\t' + str(cost_time[i_value]) + '\n')
+
+
+def roc_curve_function(y_true, y_predict) -> object:
+    roc_list = list(zip(y_predict, y_true))
+    roc_curve = []
+    x_coordinate = 0.0
+    y_coordinate = 0.0
+    number_positive = 0
+    number_negative = 0
+    length = len(roc_list)
+
+    for i_value in np.arange(length):
+        if roc_list[i_value][0] == 1 and roc_list[i_value][1] == 1:
+            number_positive = number_positive + 1
+
+        if roc_list[i_value][0] == 1 and roc_list[i_value][1] == 0:
+            number_negative = number_negative + 1
+
+    if number_negative == 0:
+        roc_curve = [[0.0, 1.0], [1.0, 1.0]]
+    else:
+        for i_value in np.arange(length):
+            if roc_list[i_value][0] == 1 and roc_list[i_value][1] == 1:
+                y_coordinate = y_coordinate + 1.0 / number_positive
+                roc_curve.append([x_coordinate, y_coordinate])
+
+            if roc_list[i_value][0] == 1 and roc_list[i_value][1] == 0:
+                x_coordinate = x_coordinate + 1.0 / number_negative
+                roc_curve.append([x_coordinate, y_coordinate])
+
+    return roc_curve
 
 
 def DBN_train(x_train):
@@ -280,6 +311,8 @@ def DBN_train(x_train):
         elif label[i_value] == 0 and classification[i_value] == 0:
             FN = FN + 1
 
+    roc_curve = roc_curve_function(label, classification)
+
     result_document = result_directory + 'DBN_predict_result.txt'
     if os.path.exists(result_document):
         os.remove(result_document)
@@ -327,3 +360,7 @@ def DBN_train(x_train):
                 f.write(str(mse_0[i_value]) + ',')
             else:
                 f.write(str(mse_0[i_value]) + '\n')
+
+        length = len(roc_curve)
+        for i_value in np.arange(length):
+            f.write(str(roc_curve[i_value][0]) + "\t" + str(roc_curve[i_value][1]) + "\n")
