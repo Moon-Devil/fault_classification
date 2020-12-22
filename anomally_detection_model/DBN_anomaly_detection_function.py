@@ -333,33 +333,33 @@ def DBN_train(x_train):
         f.write('mse_1\t')
         for i_value in np.arange(length):
             if i_value != length - 1:
-                f.write(str(mse_0[i_value]) + ',')
+                f.write(str(mse_1[i_value]) + ',')
             else:
-                f.write(str(mse_0[i_value]) + '\n')
+                f.write(str(mse_1[i_value]) + '\n')
 
         length = len(mse_2)
         f.write('mse_2\t')
         for i_value in np.arange(length):
             if i_value != length - 1:
-                f.write(str(mse_0[i_value]) + ',')
+                f.write(str(mse_2[i_value]) + ',')
             else:
-                f.write(str(mse_0[i_value]) + '\n')
+                f.write(str(mse_2[i_value]) + '\n')
 
         length = len(mse_3)
         f.write('mse_3\t')
         for i_value in np.arange(length):
             if i_value != length - 1:
-                f.write(str(mse_0[i_value]) + ',')
+                f.write(str(mse_3[i_value]) + ',')
             else:
-                f.write(str(mse_0[i_value]) + '\n')
+                f.write(str(mse_3[i_value]) + '\n')
 
         length = len(mse_4)
         f.write('mse_4\t')
         for i_value in np.arange(length):
             if i_value != length - 1:
-                f.write(str(mse_0[i_value]) + ',')
+                f.write(str(mse_4[i_value]) + ',')
             else:
-                f.write(str(mse_0[i_value]) + '\n')
+                f.write(str(mse_4[i_value]) + '\n')
 
         length = len(roc_curve)
         for i_value in np.arange(length):
