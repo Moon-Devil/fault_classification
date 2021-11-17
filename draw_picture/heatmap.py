@@ -5,7 +5,6 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics.pairwise import pairwise_distances
 import os
 import matplotlib.pyplot as plt
-import seaborn as sns
 
 
 father_path = os.path.abspath('..\\..\\..') + 'Calculations\\'
@@ -19,15 +18,15 @@ if os.path.exists(result_document):
 
 standard_scale = StandardScaler()
 
-power_decreasing = power_decreasing[:5000, ]
+power_decreasing = power_decreasing[:5000, :24]
 power_decreasing_scale = standard_scale.fit_transform(power_decreasing)
-prz_space_leak = prz_space_leak[:5000, ]
+prz_space_leak = prz_space_leak[:5000, :24]
 prz_space_leak_scale = standard_scale.fit_transform(prz_space_leak)
-rcs_loca = rcs_loca[:5000, ]
+rcs_loca = rcs_loca[:5000, :24]
 rcs_loca_scale = standard_scale.fit_transform(rcs_loca)
-sg_2nd_side_leak = sg_2nd_side_leak[:5000, ]
+sg_2nd_side_leak = sg_2nd_side_leak[:5000, :24]
 sg_2nd_side_leak_scale = standard_scale.fit_transform(sg_2nd_side_leak)
-sgtr = sgtr[:5000, ]
+sgtr = sgtr[:5000, :24]
 sgtr_scale = standard_scale.fit_transform(sgtr)
 
 power_decreasing_cov = np.cov(np.transpose(power_decreasing_scale))
@@ -68,18 +67,18 @@ write_data(power_sg_dis, "power_sg_dis")
 write_data(power_sgtr_dis, "power_sgtr_dis")
 
 
-def draw_picture_cov(cov, name):
-    sns.set()
-    plt.figure(figsize=[3, 2.25])
-    heatmap = sns.heatmap(cov, cmap='binary', cbar=False)
-    cb = heatmap.figure.colorbar(heatmap.collections[0])
-    cb.ax.tick_params(labelsize=9)
-    plt.xlabel('Data set labels', fontdict={'family': 'Times New Roman', 'size': 10.5})
-    plt.ylabel('Data set labels', fontdict={'family': 'Times New Roman', 'size': 10.5})
-    plt.xticks(fontproperties='Times New Roman', size=10.5)
-    plt.yticks(fontproperties='Times New Roman', size=10.5)
-    plt.savefig(result_directory + name + '_cov.png')
-
-
-draw_picture_cov(power_decreasing_cov, "power_decreasing_cov")
+# def draw_picture_cov(cov, name):
+#     sns.set()
+#     plt.figure(figsize=[3, 2.25])
+#     heatmap = sns.heatmap(cov, cmap='binary', cbar=False)
+#     cb = heatmap.figure.colorbar(heatmap.collections[0])
+#     cb.ax.tick_params(labelsize=9)
+#     plt.xlabel('Data set labels', fontdict={'family': 'Times New Roman', 'size': 10.5})
+#     plt.ylabel('Data set labels', fontdict={'family': 'Times New Roman', 'size': 10.5})
+#     plt.xticks(fontproperties='Times New Roman', size=10.5)
+#     plt.yticks(fontproperties='Times New Roman', size=10.5)
+#     plt.savefig(result_directory + name + '_cov.png')
+#
+#
+# draw_picture_cov(power_decreasing_cov, "power_decreasing_cov")
 print('done...')
